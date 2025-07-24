@@ -1,0 +1,38 @@
+pipeline {
+         agent {
+		 label {
+		         label 'built-in'
+				 customWorkspace '/data'
+				 }
+				}
+		 
+		stages {
+		stage('clean wsp') {
+		 steps {
+                
+                    sh '''
+                        chmod -R 777 /data/
+                        docker kill $(docker ps -q) || true
+                        docker system prune -a -f
+                        rm -rf * 
+                    '''
+                
+            }		 
+		 }
+		      stage('step-1') {
+			                steps {
+							
+							dir ("/data/data-1/") {
+							sh '''
+						    git clone https://github.com/rahulsgodase/private-repo.git -b 2025Q2
+							chmod -R 777 /data/
+							docker run -dp 80:80 --name c1 httpd 
+                            docker cp private-repo/index.html c1:/usr/local/apache2/htdocs/
+							 docker exec c1 chmod 777 /usr/local/apache2/htdocs/index.html
+							 '''
+						}
+						}
+					}
+					
+       }
+     }			   
